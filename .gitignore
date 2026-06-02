@@ -1,0 +1,5 @@
+# Secrets - ne jamais committer
+.env
+
+# Dépendances Node (volumineux, réinstallable)
+node_modules/
