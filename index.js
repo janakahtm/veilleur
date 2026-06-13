@@ -2,8 +2,6 @@ require("dotenv").config();
 
 const cleApi = process.env.NEWS_API_KEY;
 
-console.log("Cle charge : ", cleApi);
-
 async function chercherNews() {
     const url = `https://newsapi.org/v2/everything?q=intelligence artificielle&language=fr&sortBy=publishedAt&apiKey=${cleApi}`;
     
@@ -11,10 +9,16 @@ async function chercherNews() {
     const donnees  = await response.json();
 
     const articles = donnees.articles;
+    const articlesRecents = articles.slice(0,10);
 
-    console.log(`📰 ${articles.length} articles trouvés :\n`);
-    articles.forEach((article, i) => {
+    console.log(`📰 ${articlesRecents.length} articles trouvés :\n`);
+    articlesRecents.forEach((article, i) => {
+    const source = article.source.name;
+    const date = article.publishedAt.slice(0,10);
+
     console.log(`${i + 1}. ${article.title}`);
+    console.log(` 📍 ${source}.  •  📅 ${date}`);
+    console.log(`  🔗 ${article.url}\n`);
     });
 
 }
