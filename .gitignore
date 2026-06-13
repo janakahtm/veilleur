@@ -3,3 +3,6 @@
 
 # Dépendances Node (volumineux, réinstallable)
 node_modules/
+
+#Briefing generes ( resultats, pas du code source)
+briefing-*.txt

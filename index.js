@@ -1,4 +1,5 @@
 require("dotenv").config();
+const fs = require("fs");
 
 const cleApi = process.env.NEWS_API_KEY;
 
@@ -21,16 +22,23 @@ async function chercherNews() {
 
     const articlesRecents = articles.slice(0,10);
 
-    console.log(`📰 ${articlesRecents.length} articles trouvés :\n`);
+    // console.log(`📰 ${articlesRecents.length} articles trouvés :\n`);
+
+    const date = new Date().toISOString().slice(0,10);
+    let texte = `BRIEFING IA - ${date}\n\n`;
+
     articlesRecents.forEach((article, i) => {
     const source = article.source.name;
-    const date = article.publishedAt.slice(0,10);
+    const dateArticle = article.publishedAt.slice(0,10);
 
-    console.log(`${i + 1}. ${article.title}`);
-    console.log(` 📍 ${source}.  •  📅 ${date}`);
-    console.log(`  🔗 ${article.url}\n`);
+
+    texte += `${i + 1}. ${article.title}\n`;
+    texte += `  ${source}.  •  ${dateArticle}\n`;
+    texte += `  ${article.url}\n\n`;
     });
-
+    
+    fs.writeFileSync(`briefing-${date}.txt`,texte);
+    console.log(`\n Briefing sauvegarde dans briefing-${date}.txt`);
 }
 
 chercherNews();
