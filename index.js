@@ -20,10 +20,20 @@ async function chercherNews() {
 
     // les 10 plus récents et uniques
     const articles = articlesUniques.slice(0,10);
+    const listeTitres = articles.map((article) => article.title).join("\n");
+
+      // === appeler l'IA pour analyser ===
+
+    console.log("\n🤖 Analyse de l'IA en cours...\n");
+    const resume = await resumerAvecIA(listeTitres);
+
 
     // construire le briefing texte
     const date = new Date().toISOString().slice(0,10);
     let texte = `BRIEFING IA - ${date}\n\n`;
+    texte += `═══ ANALYSE DU JOUR ═══\n\n`;
+    texte += `${resume}\n\n`;
+    texte += `═══ ARTICLES ═══\n\n`;
 
     articles.forEach((article, i) => {
     const source = article.source.name;
@@ -39,12 +49,7 @@ async function chercherNews() {
     fs.writeFileSync(`briefing-${date}.txt`,texte);
     console.log(`\n Briefing sauvegarde dans briefing-${date}.txt`);
 
-     // === appeler l'IA pour analyser ===
-    const listeTitres = articles.map((article) => article.title).join("\n");
-    console.log("\n🤖 Analyse de l'IA en cours...\n");
-
-    const resume = await resumerAvecIA(listeTitres);
-
+   
     console.log("═══════════════════════════════");
     console.log(resume);
     console.log("═══════════════════════════════");
