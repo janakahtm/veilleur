@@ -8,7 +8,17 @@ async function chercherNews() {
     const response = await fetch(url);
     const donnees  = await response.json();
 
-    const articles = donnees.articles;
+    const tousLesArticles = donnees.articles;
+
+    const titres = tousLesArticles.map((article) => article.title);
+
+    const articlesUniques = tousLesArticles.filter((article,i) =>{
+        return titres.indexOf(article.title) === i;
+    });
+
+    const articles = articlesUniques.slice(0,10);
+
+
     const articlesRecents = articles.slice(0,10);
 
     console.log(`📰 ${articlesRecents.length} articles trouvés :\n`);
