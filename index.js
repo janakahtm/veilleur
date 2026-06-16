@@ -69,10 +69,9 @@ async function resumerAvecIA(listeTitres){
     });
 
     const donnees = await reponse.json();
-  
     const resume = donnees.candidates[0].content.parts[0].text;
 
-    return resume;
+   return resume;
 
 }
 chercherNews();
