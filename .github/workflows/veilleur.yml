@@ -2,6 +2,7 @@ name: Veilleur quotidien
 on:
   schedule:
     - cron: "0 12 * * *"
+  workflow_dispatch:
 jobs:
   briefing:
     runs-on: ubuntu-latest
