@@ -7,6 +7,11 @@ const cleGemini = process.env.GEMINI_API_KEY;
 
 async function envoyerEmail(texte){
 
+    console.log("➡️  Entrée dans envoyerEmail");
+    console.log("MAIL_USER présent ?", process.env.MAIL_USER ? "oui" : "NON ❌");
+    console.log("MAIL_PASS présent ?", process.env.MAIL_PASS ? "oui" : "NON ❌");
+    console.log("MAIL_TO présent ?", process.env.MAIL_TO ? "oui" : "NON ❌");
+    
     const transporteur = nodemailer.createTransport({
         service: "gmail",
         auth: {
