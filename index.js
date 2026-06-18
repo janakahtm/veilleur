@@ -1,8 +1,30 @@
 require("dotenv").config();
 const fs = require("fs");
+const nodemailer = require("nodemailer");
 
 const cleApi = process.env.NEWS_API_KEY;
 const cleGemini = process.env.GEMINI_API_KEY;
+
+async function envoyerEmail(texte){
+
+    const transporteur = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS,
+        },
+    });
+
+    await transporteur.sendMail({
+        from: process.env.MAIL_USER,
+        to: process.env.MAIL_TO,
+        subject: "Briefing IA du jour",
+        text: texte,
+
+    });
+
+    console.log("📧Briefing envoyé par e-mail !");
+}
 
 async function chercherNews() {
     const url = `https://newsapi.org/v2/everything?q=intelligence artificielle&language=fr&sortBy=publishedAt&apiKey=${cleApi}`;
@@ -49,29 +71,45 @@ async function chercherNews() {
     fs.writeFileSync(`briefing-${date}.txt`,texte);
     console.log(`\n Briefing sauvegarde dans briefing-${date}.txt`);
 
+    // envoyer par email
+    await envoyerEmail(texte);
+
    
     console.log("═══════════════════════════════");
     console.log(resume);
     console.log("═══════════════════════════════");
 }
 
-async function resumerAvecIA(listeTitres){
-    const url =`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${cleGemini}`;
-    const consigne = `Voici des titres d'articles d'actualité. Identifie les 5 sujets les plus importants liés à l'intelligence artificielle, ignore le hors-sujet, et résume le paysage du jour en quelques phrases claires en français.\n\nTitres :\n${listeTitres}`;
+async function resumerAvecIA(listeTitres) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${cleGemini}`;
+  const consigne = `Voici des titres d'articles d'actualité. Identifie les 5 sujets les plus importants liés à l'intelligence artificielle, ignore le hors-sujet, et résume le paysage du jour en quelques phrases claires en français.\n\nTitres :\n${listeTitres}`;
 
+  const maxTentatives = 4;
+
+  for (let tentative = 1; tentative <= maxTentatives; tentative++) {
     const reponse = await fetch(url, {
-        method : "POST",
-        headers: { "Content-Type" :"application/json"},
-        body: JSON.stringify({
-            contents:[{ parts :[{ text : consigne }] }]
-        }),
-        
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: consigne }] }],
+      }),
     });
 
     const donnees = await reponse.json();
-    const resume = donnees.candidates[0].content.parts[0].text;
 
-   return resume;
+    // l'API a bien renvoyé un résumé ?
+    if (donnees.candidates) {
+      return donnees.candidates[0].content.parts[0].text;
+    }
 
+    // sinon : on log et on réessaie (sauf si c'était la dernière tentative)
+    console.log(`⚠️  Tentative ${tentative}/${maxTentatives} échouée (API occupée). Nouvel essai...`);
+
+    if (tentative < maxTentatives) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+  }
+
+  throw new Error("L'IA n'a pas répondu après plusieurs tentatives.");
 }
 chercherNews();
